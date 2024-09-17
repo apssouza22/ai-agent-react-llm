@@ -1,18 +1,19 @@
-# ReAct Prompting
+# ReAct LLM Implementation
 
-GPT-3 prompting code for ICLR 2023 paper [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629).
+This repository contains the implementation of the [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629), which is a model that combines reasoning and acting capabilities in language models. 
 
-To use ReAct for more tasks, consider trying [LangChain's zero-shot ReAct Agent](https://python.langchain.com/docs/modules/agents/agent_types/react.html).
+The approach is based on the idea of combining reasoning and acting capabilities in language models to enable them to perform complex tasks that require multiple steps of reasoning and acting. 
+The model is designed to be modular and extensible, allowing it to be easily adapted to different tasks and domains. [See](https://llm-chronicles.com/pdfs/llm-chronicles-6.4-llm-agents_chain-of-thought_react.pdf) for more details.
+
+ReAct model is behind most of Agent frameworks, such as: 
+- [LangChain](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/react/)
+- [LLamaIndex](https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/)
+- [CrewAI](https://crewai.com/)
 
 ## Setup
 You need to first have an OpenAI API key and store it in the environment variable ``OPENAI_API_KEY`` (see [here](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)).
-
-REMEMBER: Don't push the commits with the OpenAI API key to a public repository.
-
-
-References:
-https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/
-https://github.com/fsndzomga/react-ai-agent/tree/main
+- `pip install -r requirements.txt`
+- `python main.py`
 
 
 Example of a conversation:

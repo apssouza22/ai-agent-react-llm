@@ -5,11 +5,12 @@ This repository contains the implementation of the [ReAct: Synergizing Reasoning
 The approach is based on the idea of combining reasoning and acting capabilities in language models to enable them to perform complex tasks that require multiple steps of reasoning and acting. 
 The model is designed to be modular and extensible, allowing it to be easily adapted to different tasks and domains.
 [See](https://medium.com/@jainashish.079/build-llm-agent-combining-reasoning-and-action-react-framework-using-langchain-379a89a7e881)
-[See](https://llm-chronicles.com/pdfs/llm-chronicles-6.4-llm-agents_chain-of-thought_react.pdf) for more details.
+for more details.
+<!--[See](https://llm-chronicles.com/pdfs/llm-chronicles-6.4-llm-agents_chain-of-thought_react.pdf) --> 
 
-<img src="diagram.png">
+<img src="img.png">
 
-ReAct model is behind most of Agent frameworks, such as: 
+ReAct model is behind most Agent frameworks, such as: 
 - [LangChain](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/react/)
 - [LLamaIndex](https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/)
 - [CrewAI](https://crewai.com/)

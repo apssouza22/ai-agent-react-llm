@@ -1,5 +1,5 @@
 from typing import Optional, Type
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from config import AgentConfig
 
 
@@ -59,6 +59,6 @@ provide for the user's task using only this information.""",
 
 
 class ReactEnd(BaseModel):
-    stop: bool
-    final_answer: str
+    stop: bool = Field(..., description="True if the context is enough to answer the request else False")
+    final_answer: str = Field(..., description="Final answer if the context is enough to answer the request")
 

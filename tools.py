@@ -1,13 +1,12 @@
 import datetime
 from typing import Callable
-
 import wikipedia
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ToolChoice(BaseModel):
-    tool_name: str
-    reason_of_choice: str
+    tool_name: str = Field(..., description="Name of the tool to use")
+    reason_of_choice: str = Field(..., description="Reason for choosing the tool")
 
 
 class Tool:
@@ -19,7 +18,7 @@ class Tool:
     def act(self, **kwargs) -> str:
         return self.func(**kwargs)
 
-# Equivalent of the perform_calculation function
+
 def perform_calculation(operation, a, b):
     if operation not in ['add', 'subtract', 'multiply', 'divide']:
         return f"Invalid operation: {operation}, should be among ['add', 'subtract', 'multiply', 'divide']"
@@ -36,15 +35,16 @@ def perform_calculation(operation, a, b):
         return a / b
 
 
-
 def search_wikipedia(search_query):
-    return "Barack Obama birthday is 04/08/1961"
-    page = wikipedia.page(search_query)
-    text = page.content
+    try:
+        page = wikipedia.page(search_query)
+        text = page.content
+    except Exception as e:
+        return ("Could not find any information on wikipedia for the search query: "
+                + search_query + ". Please try another search term")
     return text[:300]
 
 
 # Equivalent of the date_req function
 def date_of_today():
     return datetime.date.today()
-

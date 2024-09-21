@@ -91,12 +91,6 @@ class ReActExecutor:
         ---
         {self.brain.recall()}
         
-        RESPONSE FORMAT:
-        {{
-            "stop": "True if the context is enough to answer the request",
-            "final_answer": "Final answer if the context is enough to answer the request"
-        }}
-        
 """
         resp = self.brain.think(prompt, output_format=ReactEnd)
         self.brain.remember("User: Is the context information enough to finally answer to this request?")
@@ -108,7 +102,9 @@ class ReActExecutor:
     def execute(self, input: str) -> str:
         self.request = input
         print(f"Request: {input}")
+        total_interactions = 0
         while True:
+            total_interactions += 1
             self.plan()
             tool = self.choose_action()
             if tool:
@@ -119,5 +115,6 @@ class ReActExecutor:
                 print(f"Final Answer: {observation.final_answer}")
                 break
 
-
-
+            if self.config.max_interactions <= total_interactions:
+                print("Max interactions reached. Exiting.")
+                break

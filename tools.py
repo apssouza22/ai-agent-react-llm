@@ -1,5 +1,23 @@
 import datetime
+from typing import Callable
+
 import wikipedia
+from pydantic import BaseModel
+
+
+class ToolChoice(BaseModel):
+    tool_name: str
+    reason_of_choice: str
+
+
+class Tool:
+    def __init__(self, name: str, func: Callable, desc) -> None:
+        self.desc = desc
+        self.name = name
+        self.func = func
+
+    def act(self, **kwargs) -> str:
+        return self.func(**kwargs)
 
 # Equivalent of the perform_calculation function
 def perform_calculation(operation, a, b):

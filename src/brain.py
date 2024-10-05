@@ -24,7 +24,7 @@ class Brain:
 
     def think(self, prompt: str, output_format: Optional[Type[BaseModel]] = None):
         messages = [
-            self.get_system_instructions(),
+            self._get_system_instructions(),
             {
                 "role": "user",
                 "content": prompt,
@@ -47,7 +47,7 @@ class Brain:
         response = self.config.model.chat.completions.create(**open_ai_params)
         return response.choices[0].message.content
 
-    def get_system_instructions(self):
+    def _get_system_instructions(self):
         return {
             "role": "system",
             "content": f"""You are a helpful assistant that assists the user in completing a task. Don't ask for user input. 

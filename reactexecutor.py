@@ -113,8 +113,8 @@ class ReActExecutor:
             if observation.stop:
                 print("Thought: I now know the final answer. \n")
                 print(f"Final Answer: {observation.final_answer}")
-                break
+                return observation.final_answer
 
             if self.config.max_interactions <= total_interactions:
                 print("Max interactions reached. Exiting.")
-                break
+                return ""

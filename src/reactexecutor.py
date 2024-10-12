@@ -1,6 +1,7 @@
 import inspect
 import json
 from brain import Brain, ReactEnd
+from src.cache import CacheHandler
 from tools import Tool, ToolChoice
 
 
@@ -9,6 +10,7 @@ class ReActExecutor:
         self.config = config
         self.request = ""
         self.brain = Brain(config)
+        self.cache = CacheHandler()
 
     def plan(self) -> None:
         prompt = f"""Answer the following request as best you can: {self.request}.

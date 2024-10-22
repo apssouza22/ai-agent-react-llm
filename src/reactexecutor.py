@@ -17,6 +17,9 @@ class ReActExecutor:
                     
         First think step by step about what to do. Plan step by step what to do.
         
+        Continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress.
+        
+        Your goal is to demonstrate a thorough, adaptive, and self-reflective problem-solving process, emphasizing dynamic thinking and learning from your own reasoning.
         Your available tools are: 
         {[tool.name + " - " + tool.desc for tool in self.config.tools]}
         
@@ -88,16 +91,22 @@ class ReActExecutor:
 
     def observation(self) -> ReactEnd:
         prompt = f"""Is the context information  enough to finally answer to this request: {self.request}?
-        
+        Assign a quality confidence score between 0.0 and 1.0 to guide your approach:
+           - 0.8+: Continue current approach
+           - 0.5-0.7: Consider minor adjustments
+           - Below 0.5: Seriously consider backtracking and trying a different approach
+           
         CONTEXT HISTORY:
         ---
         {self.brain.recall()}
         
 """
-        resp = self.brain.think(prompt, output_format=ReactEnd)
+        resp:ReactEnd = self.brain.think(prompt, output_format=ReactEnd)
         self.brain.remember("User: Is the context information enough to finally answer to this request?")
         self.brain.remember("Assistant: " + resp.final_answer)
+        self.brain.remember("Assistant: Confidence score - " + str(resp.confidence))
         print(f"Observation: {resp.final_answer}")
+        print(f"Observation confident score: {resp.confidence}")
 
         return resp
 

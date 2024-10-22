@@ -61,4 +61,5 @@ provide for the user's task using only this information.""",
 class ReactEnd(BaseModel):
     stop: bool = Field(..., description="True if the context is enough to answer the request else False")
     final_answer: str = Field(..., description="Final answer if the context is enough to answer the request")
+    confidence: float = Field(..., description="Confidence score of the final answer")
 

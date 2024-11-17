@@ -1,11 +1,4 @@
-from openai.types.chat import ChatCompletionMessage
-from openai.types.chat.chat_completion_message_tool_call import (
-    ChatCompletionMessageToolCall,
-    Function,
-)
 from typing import List, Callable, Union, Optional
-
-# Third-party imports
 from pydantic import BaseModel
 
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
@@ -18,6 +11,11 @@ class Agent(BaseModel):
     functions: List[AgentFunction] = []
     tool_choice: str = None
     parallel_tool_calls: bool = True
+
+    def get_instructions(self, context_variables: dict = {}) -> str:
+        if callable(self.instructions):
+            return self.instructions(context_variables)
+        return self.instructions
 
 
 class Response(BaseModel):

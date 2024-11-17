@@ -1,4 +1,3 @@
-# Standard library imports
 import copy
 import json
 from collections import defaultdict
@@ -14,7 +13,7 @@ from .util import function_to_json, debug_print
 __CTX_VARS_NAME__ = "context_variables"
 
 
-class Swarm:
+class AgentRunner:
 
     def __init__(self, client=None, debug=False):
         self.debug = debug
@@ -28,11 +27,7 @@ class Swarm:
             context_variables: dict
     ) -> dict:
         context_variables = defaultdict(str, context_variables)
-        instructions = (
-            agent.instructions(context_variables)
-            if callable(agent.instructions)
-            else agent.instructions
-        )
+        instructions = agent.get_instructions(context_variables)
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(self.debug, "Getting chat completion for...:", messages)
 
@@ -75,7 +70,6 @@ class Swarm:
         loop_count = 0
 
         while loop_count < max_turns and active_agent:
-            # get completion with current history, agent
             create_params = self.__create_inference_request(
                 agent=active_agent,
                 history=history,

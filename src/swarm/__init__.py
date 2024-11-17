@@ -1,4 +1,4 @@
-from .core import Swarm
+from .core import AgentRunner
 from .types import Agent, Response
 
-__all__ = ["Swarm", "Agent", "Response"]
+__all__ = ["AgentRunner", "Agent", "Response"]

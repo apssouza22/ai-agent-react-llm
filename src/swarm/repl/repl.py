@@ -2,7 +2,7 @@ import json
 
 from openai import OpenAI
 
-from swarm import Swarm
+from swarm import AgentRunner
 
 
 def process_and_print_streaming_response(response):
@@ -62,7 +62,7 @@ def pretty_print_messages(messages) -> None:
 def run_demo_loop(
         starting_agent, context_variables=None, stream=False, debug=False
 ) -> None:
-    client = Swarm(client=OpenAI(), debug=True)
+    client = AgentRunner(client=OpenAI(), debug=True)
     print("Starting Swarm CLI 🐝")
 
     messages = []

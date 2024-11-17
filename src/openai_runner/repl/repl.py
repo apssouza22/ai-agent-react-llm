@@ -2,7 +2,7 @@ import json
 
 from openai import OpenAI
 
-from swarm import AgentRunner
+from openai_runner import AgentRunner
 
 
 def process_and_print_streaming_response(response):

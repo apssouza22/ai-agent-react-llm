@@ -1,12 +1,14 @@
 from typing import List, Callable, Union, Optional
 from pydantic import BaseModel
 
+from openai_runner.util import function_to_json
+
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 
 
 class Agent(BaseModel):
     name: str = "Agent"
-    model: str = "gpt-4o"
+    model: str = "gpt-4o-mini"
     instructions: Union[str, Callable[[], str]] = "You are a helpful agent."
     functions: List[AgentFunction] = []
     tool_choice: str = None
@@ -17,6 +19,8 @@ class Agent(BaseModel):
             return self.instructions(context_variables)
         return self.instructions
 
+    def tools_in_json(self)->list[dict]:
+        return [function_to_json(f) for f in self.functions]
 
 class Response(BaseModel):
     messages: List = []

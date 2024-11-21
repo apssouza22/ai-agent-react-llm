@@ -31,7 +31,7 @@ class AgentRunner:
         messages = [{"role": "system", "content": instructions}] + history
         debug_print(self.debug, "Getting chat completion for...:", messages)
 
-        tools = [function_to_json(f) for f in agent.functions]
+        tools = agent.tools_in_json()
         self.__hide_context_vars(tools)
 
         create_params = {

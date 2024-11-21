@@ -7,6 +7,7 @@ from openai_runner import Agent
 
 
 def transfer_to_flight_modification():
+    """Call this function when a user needs to be transferred to flight modification agent."""
     return flight_modification
 
 

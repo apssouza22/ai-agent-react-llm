@@ -1,9 +1,9 @@
 import os
 from openai import OpenAI
 
-from config import AgentConfig
-from reactexecutor import ReActExecutor
-from tools import search_wikipedia, perform_calculation, date_of_today, Tool
+from react.config import AgentConfig
+from react.reactexecutor import ReActExecutor
+from react.tools import search_wikipedia, perform_calculation, date_of_today, Tool
 
 wikipedia_search_tool = Tool("WikipediaSearch", search_wikipedia, "To search for information on wikipedia")
 calculator_tool = Tool("Calculator", perform_calculation, "To perform math calculations")

@@ -1,6 +1,6 @@
 from typing import Optional, Type
 from pydantic import BaseModel, Field
-from config import AgentConfig
+from react.config import AgentConfig
 
 
 class Brain:

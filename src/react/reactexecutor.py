@@ -1,8 +1,8 @@
 import inspect
 import json
-from brain import Brain, ReactEnd
-from src.cache import CacheHandler
-from tools import Tool, ToolChoice
+from react.brain import Brain, ReactEnd
+from react.cache import CacheHandler
+from react.tools import Tool, ToolChoice
 
 
 class ReActExecutor:

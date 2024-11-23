@@ -27,7 +27,7 @@ def people_search_agent(name: str) -> str:
 
 
 if __name__ == "__main__":
-    people_search_tool = Tool("People_search", people_search_agent, "To search for people information")
+    people_search_tool = Tool("People_search", people_search_agent, "To search for person information")
     tools = [wikipedia_search_tool, calculator_tool, date_request_tool, people_search_tool]
 
     agentConfig = AgentConfig()
@@ -40,5 +40,5 @@ if __name__ == "__main__":
     )
 
     agent = ReActExecutor(agentConfig)
-    agent.execute("What is the double of Barack Obama age?")
+    agent.execute("What is the double of Linus Torvalds age?")
 

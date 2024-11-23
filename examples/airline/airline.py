@@ -1,5 +1,7 @@
 from configs.agents import *
-from openai_runner.repl import run_demo_loop
+from openai import OpenAI
+from openai_runner import AgentRunner
+from openai_runner.util import pretty_print_messages
 
 context_variables = {
     "customer_context": """Here is what you know about the customer's details:
@@ -15,5 +17,32 @@ context_variables = {
     "flight_context": """The customer has an upcoming flight from LGA (Laguardia) in NYC to LAX in Los Angeles.
 The flight # is 1919. The flight departure date is 3pm ET, 5/21/2024.""",
 }
+
+
+
+def run_demo_loop(
+        starting_agent, context_variables=None, stream=False, debug=False
+) -> None:
+    client = AgentRunner(client=OpenAI(), debug=True)
+    print("Starting Swarm CLI 🐝")
+
+    messages = []
+    agent = starting_agent
+
+    while True:
+        user_input = input("\033[90mUser\033[0m: ")
+        messages.append({"role": "user", "content": user_input})
+
+        response = client.run(
+            agent=agent,
+            messages=messages,
+            context_variables=context_variables or {},
+        )
+
+        pretty_print_messages(response.messages)
+        messages.extend(response.messages)
+        agent = response.agent
+
+
 if __name__ == "__main__":
     run_demo_loop(triage_agent, context_variables=context_variables, debug=True)

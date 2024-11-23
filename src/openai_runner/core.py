@@ -8,7 +8,7 @@ from .types import (
     Agent,
     Response,
 )
-from .util import function_to_json, debug_print
+from .util import debug_print
 
 __CTX_VARS_NAME__ = "context_variables"
 
@@ -48,7 +48,7 @@ class AgentRunner:
 
     @staticmethod
     def __hide_context_vars(tools):
-        # hide context_variables from model
+        """hide context_variables from model """
         for tool in tools:
             params = tool["function"]["parameters"]
             params["properties"].pop(__CTX_VARS_NAME__, None)
@@ -79,23 +79,23 @@ class AgentRunner:
             message = completion.choices[0].message
             debug_print(self.debug, "Received completion:", message)
             message.sender = active_agent.name
-            history_msg = json.loads(message.model_dump_json())  # to avoid OpenAI types (?)
+            history_msg = json.loads(message.model_dump_json())
             history.append(history_msg)
             loop_count = loop_count + 1
             if not message.tool_calls or not execute_tools:
                 debug_print(self.debug, "Ending turn.")
                 break
 
-            partial_response = self.result_handler.handle_tool_calls(
+            response = self.result_handler.handle_tool_calls(
                 message.tool_calls,
                 active_agent.functions,
                 context_variables
             )
 
-            history.extend(partial_response.messages)
-            context_variables.update(partial_response.context_variables)
-            if partial_response.agent:
-                active_agent = partial_response.agent
+            history.extend(response.messages)
+            context_variables.update(response.context_variables)
+            if response.agent:
+                active_agent = response.agent
 
         return Response(
             messages=history[init_len:],

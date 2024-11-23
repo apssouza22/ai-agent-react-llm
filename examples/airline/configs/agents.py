@@ -1,7 +1,6 @@
+from configs.policies import *
 from configs.tools import *
-from data.routines.baggage.policies import *
-from data.routines.flight_modification.policies import *
-from data.routines.prompts import STARTER_PROMPT
+from configs.prompts import STARTER_PROMPT
 
 from openai_runner import Agent
 

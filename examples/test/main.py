@@ -15,7 +15,10 @@ Important! Make sure you are returning info for the right person.""",
 
 main_agent = AgentBase(
     name="MultiToolAgent",
-    instructions=f"""Important! You are not good with math operations therefore you must to use a Calculator tool to perform math calculations.
+    instructions=f"""
+    You are a helpful assistant that assists the user in completing a task using multiple tools.
+Important! You are bad at math operations therefore you MUST to use the provided Calculator tool to perform math calculations. 
+Ex. use the Calculator tool to multiply 2 by 3.
 """,
 )
 
@@ -37,4 +40,4 @@ if __name__ == "__main__":
     agentConfig.with_token_limit(5000)
     agentConfig.with_max_interactions(5)
     react = ReActExecutor(agentConfig, main_agent)
-    react.execute("What is the double of Alexsandro de Souza age?")
+    react.execute("What is the double of Linus Torvalds age?")

@@ -28,6 +28,10 @@ class Brain:
         messages = [
             self._get_system_instructions(agent),
             {
+                "role": "system",
+                "content": agent.get_instructions({}),
+            },
+            {
                 "role": "user",
                 "content": prompt,
             }
@@ -54,10 +58,8 @@ class Brain:
         return {
             "role": "system",
             "content": f"""You are a helpful assistant that assists the user in completing a task. Don't ask for user input. 
-Important! You don't know the date of today, therefore you must use the Date_of_today tool to get the date of today.
-\n {agent.get_instructions({})} \n         
-Given the following information from the context history 
-provide for the user's task using only this information.""",
+Important! You don't know the date of today, therefore you must use the Date_of_today tool to get the date of today.       
+Given the following information from the context history provide for the user's task using only this information.""",
         }
 
 

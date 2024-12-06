@@ -1,8 +1,7 @@
+from common.agent_base import Agent
 from configs.policies import *
 from configs.tools import *
 from configs.prompts import STARTER_PROMPT
-
-from openai_runner import Agent
 
 
 def transfer_to_flight_modification():

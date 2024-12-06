@@ -20,11 +20,9 @@ The flight # is 1919. The flight departure date is 3pm ET, 5/21/2024.""",
 
 
 
-def run_demo_loop(
-        starting_agent, context_variables=None, stream=False, debug=False
-) -> None:
+def run_demo_loop( starting_agent, context_variables=None) -> None:
     client = AgentRunner(client=OpenAI(), debug=True)
-    print("Starting Swarm CLI 🐝")
+    print("Starting Agent CLI")
 
     messages = []
     agent = starting_agent
@@ -45,4 +43,4 @@ def run_demo_loop(
 
 
 if __name__ == "__main__":
-    run_demo_loop(triage_agent, context_variables=context_variables, debug=True)
+    run_demo_loop(triage_agent, context_variables=context_variables)

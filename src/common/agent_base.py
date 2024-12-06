@@ -7,10 +7,9 @@ from common.utils import function_to_json
 
 AgentFunction = Callable[[], AnyCallable]
 
-
-class AgentBase(BaseModel):
+class Agent(BaseModel):
     name: str = "Agent"
-    model: str = "gpt-4o-2024-08-06"
+    model: str = "gpt-4o"
     instructions: Union[str, Callable[[], str]] = "You are a helpful agent."
     functions: List = []
     tool_choice: str = None

@@ -1,21 +1,21 @@
 import inspect
 import json
 
-from common.agent_base import AgentBase
+from common.agent_base import Agent
 from react.brain import Brain, ReactEnd
 from react.cache import CacheHandler
 from react.tools import Tool, ToolChoice
 
 
 class ReActExecutor:
-    def __init__(self, config, agent: AgentBase) -> None:
+    def __init__(self, config, agent: Agent) -> None:
         self.agent = agent
         self.config = config
         self.request = ""
         self.brain = Brain(config)
         self.cache = CacheHandler()
 
-    def plan(self, current_agent: AgentBase) -> None:
+    def plan(self, current_agent: Agent) -> None:
         tools = self.__get_tools(current_agent)
 
         prompt = f"""Answer the following request as best you can: {self.request}.
@@ -43,7 +43,7 @@ CONTEXT HISTORY:
         str_tools = [tool.name + " - " + tool.desc for tool in tools]
         return "\n".join(str_tools)
 
-    def choose_action(self, current_agent: AgentBase) -> Tool:
+    def choose_action(self, current_agent: Agent) -> Tool:
         tools = self.__get_tools(current_agent)
         prompt = f"""To Answer the following request as best you can: {self.request}.
         
@@ -71,7 +71,7 @@ RESPONSE FORMAT:
         tool = [tool for tool in current_agent.functions if tool.name == response.tool_name]
         return tool[0] if tool else None
 
-    def action(self, tool: Tool, current_agent: AgentBase) -> None:
+    def action(self, tool: Tool, current_agent: Agent) -> None:
         if tool is None:
             return
 
@@ -105,7 +105,7 @@ RESPONSE FORMAT:
         print(message)
         self.brain.remember(message)
 
-    def observation(self, current_agent: AgentBase) -> ReactEnd:
+    def observation(self, current_agent: Agent) -> ReactEnd:
         prompt = f"""Is the context information  enough to finally answer to this request: {self.request}?
        
 Assign a quality confidence score between 0.0 and 1.0 to guide your approach:
@@ -136,7 +136,7 @@ CONTEXT HISTORY:
             self.plan(agent)
             tool = self.choose_action(agent)
             if tool:
-                if isinstance(tool.func, AgentBase):
+                if isinstance(tool.func, Agent):
                     agent = tool.func
                     print(f"Agent: {agent.name}")
                     continue

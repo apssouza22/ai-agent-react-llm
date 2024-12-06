@@ -1,7 +1,7 @@
 from typing import Optional, Type
 from pydantic import BaseModel, Field
 
-from common.agent_base import AgentBase
+from common.agent_base import Agent
 from react.config import AgentConfig
 
 
@@ -24,9 +24,9 @@ class Brain:
     def recall(self):
         return "\n".join(self.messages)
 
-    def think(self, prompt: str, agent: AgentBase, output_format: Optional[Type[BaseModel]] = None):
+    def think(self, prompt: str, agent: Agent, output_format: Optional[Type[BaseModel]] = None):
         messages = [
-            self._get_system_instructions(agent),
+            self._get_system_instructions(),
             {
                 "role": "system",
                 "content": agent.get_instructions({}),
@@ -54,7 +54,7 @@ class Brain:
         return response.choices[0].message.content
 
     @staticmethod
-    def _get_system_instructions(agent: AgentBase):
+    def _get_system_instructions():
         return {
             "role": "system",
             "content": f"""You are a helpful assistant that assists the user in completing a task. Don't ask for user input. 

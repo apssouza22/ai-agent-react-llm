@@ -1,5 +1,5 @@
 import datetime
-from typing import Callable
+from typing import Callable, Union
 import wikipedia
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ class ToolChoice(BaseModel):
 
 
 class Tool:
-    def __init__(self, name: str, func: Callable, desc) -> None:
+    def __init__(self, name: str, func, desc) -> None:
         self.desc = desc
         self.name = name
         self.func = func
@@ -18,6 +18,7 @@ class Tool:
     def act(self, **kwargs) -> str:
         return self.func(**kwargs)
 
+AgentFunction = Callable[[], Union[str, "Agent", dict, Tool]]
 
 def perform_calculation(operation, a, b):
     if operation not in ['add', 'subtract', 'multiply', 'divide']:

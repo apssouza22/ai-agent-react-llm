@@ -1,7 +1,7 @@
 from typing import List, Callable, Union, Optional
 from pydantic import BaseModel
 
-from openai_runner.util import function_to_json
+from common.utils import function_to_json
 
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 

@@ -1,65 +1,77 @@
 import inspect
 import json
+
+from common.agent_base import AgentBase
 from react.brain import Brain, ReactEnd
 from react.cache import CacheHandler
 from react.tools import Tool, ToolChoice
 
 
 class ReActExecutor:
-    def __init__(self, config) -> None:
+    def __init__(self, config, agent: AgentBase) -> None:
+        self.agent = agent
         self.config = config
         self.request = ""
         self.brain = Brain(config)
         self.cache = CacheHandler()
 
-    def plan(self) -> None:
+    def plan(self, current_agent: AgentBase) -> None:
+        tools = self.__get_tools(current_agent)
+
         prompt = f"""Answer the following request as best you can: {self.request}.
-                    
         First think step by step about what to do. Plan step by step what to do.
-        
         Continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress.
-        
         Your goal is to demonstrate a thorough, adaptive, and self-reflective problem-solving process, emphasizing dynamic thinking and learning from your own reasoning.
+        
         Your available tools are: 
-        {[tool.name + " - " + tool.desc for tool in self.config.tools]}
+        {tools}
         
         CONTEXT HISTORY:
         ---
         {self.brain.recall()}
 """
-        response = self.brain.think(prompt=prompt)
+        response = self.brain.think(prompt=prompt, agent=current_agent)
         print(f"Thought: {response}")
         self.brain.remember("Assistant: " + response)
 
-    def choose_action(self) -> Tool:
-        prompt = f"""To Answer the following request as best you can: {self.request}.
-                    Choose the tool to use if need be. The tool should be among:
-                    {[tool.name for tool in self.config.tools]}.
-                    
-                    CONTEXT HISTORY:
-                    ---
-                    {self.brain.recall()}
+    @staticmethod
+    def __get_tools(current_agent) -> str:
+        tools = [tool for tool in current_agent.functions if isinstance(tool, Tool)]
+        str_tools = [tool.name + " - " + tool.desc for tool in tools]
+        return "\n".join(str_tools)
 
-                    RESPONSE FORMAT:
-                    {{
-                        "tool_name": "ToolName",
-                        "reason_of_choice": "Reason for choosing the tool"
-                    }}
-                    """
+    def choose_action(self, current_agent: AgentBase) -> Tool:
+        tools = self.__get_tools(current_agent)
+        prompt = f"""To Answer the following request as best you can: {self.request}.
+        
+Choose the tool to use if need be. The tool should be among:
+{tools}
+
+CONTEXT HISTORY:
+---
+{self.brain.recall()}
+
+RESPONSE FORMAT:
+{{
+    "tool_name": "ToolName",
+    "reason_of_choice": "Reason for choosing the tool"
+}}
+"""
         self.brain.remember("User: Choose the tool to use if need be.")
-        response: ToolChoice = self.brain.think(prompt=prompt, output_format=ToolChoice)
+        response: ToolChoice = self.brain.think(prompt=prompt, agent=current_agent, output_format=ToolChoice)
 
         message = f"""Assistant: I should use this tool: {response.tool_name}. {response.reason_of_choice}"""
 
         print(message)
         self.brain.remember(message)
 
-        tool = [tool for tool in self.config.tools if tool.name == response.tool_name].pop()
-        return tool
+        tool = [tool for tool in current_agent.functions if tool.name == response.tool_name]
+        return tool[0] if tool else None
 
-    def action(self, tool: Tool) -> None:
+    def action(self, tool: Tool, current_agent: AgentBase) -> None:
         if tool is None:
             return
+
         parameters = inspect.signature(tool.func).parameters
         response = {}
         prompt = f"""To Answer the following request as best you can: {self.request}.
@@ -78,9 +90,10 @@ class ReActExecutor:
                         {', '.join([f'"{param}": <function parameter>' for param in parameters])}
                     }}"""
             self.brain.remember("User: Determine the inputs to send to the tool:" + tool.name)
-            response = self.brain.think(prompt=prompt)
+            response = self.brain.think(prompt=prompt, agent=current_agent)
             self.brain.remember("Assistant: " + response)
-            response = json.loads(response)
+            # replace "json" string from response
+            response = json.loads(response.replace("json", ""))
 
         action_result = tool.func(**response)
         message = f"Action Result: {action_result}"
@@ -89,7 +102,7 @@ class ReActExecutor:
         print(message)
         self.brain.remember(message)
 
-    def observation(self) -> ReactEnd:
+    def observation(self, current_agent: AgentBase) -> ReactEnd:
         prompt = f"""Is the context information  enough to finally answer to this request: {self.request}?
         Assign a quality confidence score between 0.0 and 1.0 to guide your approach:
            - 0.8+: Continue current approach
@@ -101,7 +114,7 @@ class ReActExecutor:
         {self.brain.recall()}
         
 """
-        resp:ReactEnd = self.brain.think(prompt, output_format=ReactEnd)
+        resp: ReactEnd = self.brain.think(prompt, agent=current_agent, output_format=ReactEnd)
         self.brain.remember("User: Is the context information enough to finally answer to this request?")
         self.brain.remember("Assistant: " + resp.final_answer)
         self.brain.remember("Assistant: Confidence score - " + str(resp.confidence))
@@ -114,13 +127,23 @@ class ReActExecutor:
         self.request = input
         print(f"Request: {input}")
         total_interactions = 0
+        agent = self.agent
         while True:
             total_interactions += 1
-            self.plan()
-            tool = self.choose_action()
+            self.plan(agent)
+            tool = self.choose_action(agent)
             if tool:
-                self.action(tool)
-            observation = self.observation()
+                if isinstance(tool.func, AgentBase):
+                    agent = tool.func
+                    print(f"Agent: {agent.name}")
+                    continue
+
+                self.action(tool, agent)
+            else:
+                print("Tool not found")
+                agent = self.agent
+
+            observation = self.observation(agent)
             if observation.stop:
                 print("Thought: I now know the final answer. \n")
                 print(f"Final Answer: {observation.final_answer}")

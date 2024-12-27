@@ -15,6 +15,7 @@ ReAct model is behind most Agent frameworks, such as:
 - [LLamaIndex](https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/)
 - [CrewAI](https://crewai.com/)
 - [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
+- [Anthropics Computer use](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo)
 
 ## Setup
 You need to first have an OpenAI API key and store it in the environment variable ``OPENAI_API_KEY`` (see [here](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)).

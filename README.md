@@ -1,8 +1,8 @@
 # Vanilla ReAct LLM Agent
 
-This repository contains the implementation of the [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629), which is a model that combines reasoning and acting capabilities in language models. 
+This repository contains the implementation of the [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629), which is a model that combines reasoning and acting capabilities in language models.
 
-The approach is based on the idea of combining reasoning and acting capabilities in language models to enable them to perform complex tasks that require multiple steps of reasoning and acting. 
+The approach is based on the idea of combining reasoning and acting capabilities in language models to enable them to perform complex tasks that require multiple steps of reasoning and acting.
 The model is designed to be modular and extensible, allowing it to be easily adapted to different tasks and domains.
 [See](https://medium.com/@jainashish.079/build-llm-agent-combining-reasoning-and-action-react-framework-using-langchain-379a89a7e881)
 for more details.
@@ -10,19 +10,22 @@ for more details.
 
 <img src="img.png">
 
-ReAct model is behind most Agent frameworks, such as: 
-- [LangChain](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/react/)
-- [LLamaIndex](https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/)
-- [CrewAI](https://crewai.com/)
+ReAct model is behind most Agent frameworks, such as:
 - [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
 - [Anthropics Computer use](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo)
+- [CrewAI](https://crewai.com/)
+- [LangChain](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/react/)
+- [LLamaIndex](https://docs.llamaindex.ai/en/stable/examples/agent/react_agent_with_query_engine/)
 
 ## Setup
 You need to first have an OpenAI API key and store it in the environment variable ``OPENAI_API_KEY`` (see [here](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)).
 - `pip install -r requirements.txt`
 - `export OPENAI_API_KEY=your_api_key`
-- `cd src && python main.py`
+- `PYTHONPATH=src python examples/search/main.py`
 
+## ReAct using OpenAI functions
+We can improve the ReAct model by using OpenAI functions. See the implementation in the `examples/airline/airline.py` file.
+- `PYTHONPATH=src python examples/airline/airline.py`
 
 Example of a conversation:
 

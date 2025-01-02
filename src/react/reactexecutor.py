@@ -34,7 +34,7 @@ CONTEXT HISTORY:
 {self.brain.recall()}
 """
         response = self.brain.think(prompt=prompt, agent=current_agent)
-        print(f"Thought: {response}")
+        print(f"============= \n Thought: {response} \n=============")
         self.brain.remember("Assistant: " + response)
 
     @staticmethod
@@ -75,6 +75,7 @@ RESPONSE FORMAT:
         if tool is None:
             return
 
+        print(f"""============= Executing {tool.name} =============""")
         parameters = inspect.signature(tool.func).parameters
         response = {}
         prompt = f"""To Answer the following request as best you can: {self.request}.
@@ -100,7 +101,6 @@ RESPONSE FORMAT:
 
         action_result = tool.func(**response)
         message = f"Action Result: {action_result}"
-
         print("Action params: " + str(response))
         print(message)
         self.brain.remember(message)
@@ -121,6 +121,8 @@ CONTEXT HISTORY:
         self.brain.remember("User: Is the context information enough to finally answer to this request?")
         self.brain.remember("Assistant: " + resp.final_answer)
         self.brain.remember("Assistant: Approach confidence score - " + str(resp.confidence))
+
+        print("============== Observation =============")
         print(f"Observation: {resp.final_answer}")
         print(f"Approach confident score: {resp.confidence}")
 

@@ -19,6 +19,8 @@ ReAct model is behind most Agent frameworks, such as:
 
 ## Setup
 You need to first have an OpenAI API key and store it in the environment variable ``OPENAI_API_KEY`` (see [here](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)).
+- Create a new python environment `python3 -m venv venv` (Optional)
+- Activate the environment `source venv/bin/activate` (Optional)
 - `pip install -r requirements.txt`
 - `export OPENAI_API_KEY=your_api_key`
 - `PYTHONPATH=src python examples/search/main.py`

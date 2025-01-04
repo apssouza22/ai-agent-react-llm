@@ -4,18 +4,19 @@ import json
 from common.agent_base import Agent
 from react.brain import Brain, ReactEnd
 from react.cache import CacheHandler
+from react.config import AgentConfig
 from react.tools import Tool, ToolChoice
 
 
 class ReActExecutor:
-    def __init__(self, config, agent: Agent) -> None:
-        self.agent = agent
+    def __init__(self, config: AgentConfig, agent: Agent) -> None:
+        self.base_agent = agent
         self.config = config
         self.request = ""
         self.brain = Brain(config)
         self.cache = CacheHandler()
 
-    def plan(self, current_agent: Agent) -> None:
+    def __plan(self, current_agent: Agent) -> None:
         tools = self.__get_tools(current_agent)
 
         prompt = f"""Answer the following request as best you can: {self.request}.
@@ -34,7 +35,8 @@ CONTEXT HISTORY:
 {self.brain.recall()}
 """
         response = self.brain.think(prompt=prompt, agent=current_agent)
-        print(f"============= \n Thought: {response} \n=============")
+        print(f"============= Plan =============")
+        print(f"Thought: {response} \n")
         self.brain.remember("Assistant: " + response)
 
     @staticmethod
@@ -43,7 +45,7 @@ CONTEXT HISTORY:
         str_tools = [tool.name + " - " + tool.desc for tool in tools]
         return "\n".join(str_tools)
 
-    def choose_action(self, current_agent: Agent) -> Tool:
+    def __choose_action(self, current_agent: Agent) -> Tool:
         tools = self.__get_tools(current_agent)
         prompt = f"""To Answer the following request as best you can: {self.request}.
         
@@ -71,7 +73,7 @@ RESPONSE FORMAT:
         tool = [tool for tool in current_agent.functions if tool.name == response.tool_name]
         return tool[0] if tool else None
 
-    def action(self, tool: Tool, current_agent: Agent) -> None:
+    def __action(self, tool: Tool, current_agent: Agent) -> None:
         if tool is None:
             return
 
@@ -96,8 +98,14 @@ RESPONSE FORMAT:
             self.brain.remember("User: Determine the inputs to send to the tool:" + tool.name)
             response = self.brain.think(prompt=prompt, agent=current_agent)
             self.brain.remember("Assistant: " + response)
-            # replace "json" string from response
-            response = json.loads(response.replace("json", ""))
+            try:
+                # replace "json" string from response
+                response = json.loads(response.replace("json", ""))
+            except Exception as e:
+                print(f"Error in parsing response: {e}")
+                print(f"Invalid response: {response}")
+                self.brain.remember("Assistant: Error in parsing json response")
+                return
 
         action_result = tool.func(**response)
         message = f"Action Result: {action_result}"
@@ -105,7 +113,7 @@ RESPONSE FORMAT:
         print(message)
         self.brain.remember(message)
 
-    def observation(self, current_agent: Agent) -> ReactEnd:
+    def __observation(self, current_agent: Agent) -> ReactEnd:
         prompt = f"""Is the context information  enough to finally answer to this request: {self.request}?
        
 Assign a quality confidence score between 0.0 and 1.0 to guide your approach:
@@ -132,23 +140,23 @@ CONTEXT HISTORY:
         self.request = input
         print(f"Request: {input}")
         total_interactions = 0
-        agent = self.agent
+        agent = self.base_agent
         while True:
             total_interactions += 1
-            self.plan(agent)
-            tool = self.choose_action(agent)
+            self.__plan(agent)
+            tool = self.__choose_action(agent)
             if tool:
                 if isinstance(tool.func, Agent):
                     agent = tool.func
                     print(f"Agent: {agent.name}")
                     continue
 
-                self.action(tool, agent)
+                self.__action(tool, agent)
             else:
                 print("Tool not found")
-                agent = self.agent
+                agent = self.base_agent
 
-            observation = self.observation(agent)
+            observation = self.__observation(agent)
             if observation.stop:
                 print("Thought: I now know the final answer. \n")
                 print(f"Final Answer: {observation.final_answer}")

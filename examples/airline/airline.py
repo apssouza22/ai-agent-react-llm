@@ -39,7 +39,7 @@ def run_demo_loop( starting_agent, context_variables=None) -> None:
 
         pretty_print_messages(response.messages)
         messages.extend(response.messages)
-        agent = response.agent
+        agent = response.base_agent
 
 
 if __name__ == "__main__":

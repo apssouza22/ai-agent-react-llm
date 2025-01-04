@@ -1,11 +1,9 @@
 from typing import Callable, Union, List
 
 from pydantic import BaseModel
-from pydantic.v1.typing import AnyCallable
 
 from common.utils import function_to_json
 
-AgentFunction = Callable[[], AnyCallable]
 
 class Agent(BaseModel):
     name: str = "Agent"

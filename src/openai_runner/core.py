@@ -94,8 +94,8 @@ class AgentRunner:
 
             history.extend(response.messages)
             context_variables.update(response.context_variables)
-            if response.agent:
-                active_agent = response.agent
+            if response.base_agent:
+                active_agent = response.base_agent
 
         return Response(
             messages=history[init_len:],

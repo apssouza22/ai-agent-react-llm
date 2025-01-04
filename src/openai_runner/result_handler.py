@@ -79,7 +79,7 @@ class ResultHandler:
         })
         partial_response.context_variables.update(result.context_variables)
         if result.agent:
-            partial_response.agent = result.agent
+            partial_response.base_agent = result.agent
 
     def __execute_tool(self, context_variables, function_map, name, tool_call):
         args = json.loads(tool_call.function.arguments)

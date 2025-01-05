@@ -4,6 +4,7 @@ from openai import OpenAI
 
 from common import Agent, AgentConfig
 from reactexecutor import ReActExecutor
+from tools import people_search_tool, calculator_tool
 
 open_ai = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 
@@ -11,7 +12,8 @@ main_agent = Agent(
     name="MultiToolAgent",
     instructions=f"""
     You are a helpful assistant that assists the user in completing a task using multiple tools.
-    """
+    """,
+    functions=[people_search_tool, calculator_tool]
 )
 
 

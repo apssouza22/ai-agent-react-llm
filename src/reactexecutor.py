@@ -1,6 +1,7 @@
 import inspect
 import json
 
+from brain import Brain
 from common import AgentConfig, Agent, ReactEnd, Tool, ToolChoice
 
 
@@ -9,6 +10,7 @@ class ReActExecutor:
         self.base_agent = agent
         self.config = config
         self.request = ""
+        self.brain = Brain(config)
 
     def execute(self, query_input: str) -> str:
         print(f"Request: {query_input}")
@@ -32,8 +34,34 @@ class ReActExecutor:
                 print(f"Final Answer: {observation.final_answer}")
                 return observation.final_answer
 
+    @staticmethod
+    def __get_tools(agent: Agent) -> str:
+        tools =  [tool for tool in agent.functions if isinstance(tool, Tool)]
+        str_tools = [tool.name +" - "+ tool.desc for tool in tools]
+        return "\n".join(str_tools)
+
+
     def __thought(self, current_agent: Agent) -> None:
-        pass
+        tools = self.__get_tools(current_agent)
+        prompt = f"""Answer the following request as best you can: {self.request}.
+            
+First think step by step about what to do. Plan step by step what to do.
+Continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress.
+Your goal is to demonstrate a thorough, adaptive, and self-reflective problem-solving process, emphasizing dynamic thinking and learning from your own reasoning.
+
+Make sure to include the available tools in your plan.
+
+Your available tools are: 
+{tools}
+
+CONTEXT HISTORY:
+---
+{self.brain.recall()}
+"""
+        response = self.brain.think(prompt=prompt, agent=current_agent)
+        print(f"============= Thought =============")
+        print(f"Thought response: {response} \n")
+        self.brain.remember("Assistant: " + response)
 
     def __action(self, agent: Agent) -> tuple[Agent, bool]:
         tool = self.__choose_action(agent)

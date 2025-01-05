@@ -1,4 +1,6 @@
-from common import AgentConfig, Agent
+from typing import Tuple
+
+from common import AgentConfig, Agent, ReactEnd
 
 
 class ReActExecutor:
@@ -11,18 +13,45 @@ class ReActExecutor:
     def __thought(self, current_agent: Agent) -> None:
         pass
 
-    def __action(self, current_agent: Agent) -> None:
+
+    def __action(self, agent: Agent) -> tuple[Agent, bool]:
+        tool = self.__choose_action(agent)
+        if tool:
+            if isinstance(tool.func, Agent):
+                agent = tool.func
+                print(f"Agent: {agent.name}")
+                return agent, True
+
+            self.__execute_action(tool, agent)
+        else:
+            print("Tool not found. Resetting to base agent.")
+            agent = self.base_agent
+            return agent, True
+        return agent, False
+
+    def __observation(self, current_agent: Agent) -> ReactEnd:
         pass
 
-    def __observation(self, current_agent: Agent) -> None:
-        pass
+
+    def execute(self, query_input: str) -> str:
+        print(f"Request: {query_input}")
+        self.request = query_input
+        total_interactions = 0
+        agent = self.base_agent
+        while True:
+            total_interactions += 1
+            self.__thought(agent)
+            agent = self.__action(agent)
+            observation = self.__observation(agent)
+            if observation.stop:
+                print("Thought: I now know the final answer. \n")
+                print(f"Final Answer: {observation.final_answer}")
+                return observation.final_answer
+
+            if self.config.max_interactions <= total_interactions:
+                print("Max interactions reached. Exiting.")
+                return ""
 
 
-    def execute(self, request: str) -> str:
-        self.request = request
-        current_agent = self.base_agent
-        self.__thought(current_agent)
-        self.__action(current_agent)
-        return self.__observation(current_agent)
 
 

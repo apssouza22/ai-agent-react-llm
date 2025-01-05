@@ -20,6 +20,6 @@ if __name__ == "__main__":
     agentConfig = AgentConfig()
     agentConfig.with_model_client(open_ai)
     agentConfig.with_token_limit(5000)
-    agentConfig.with_max_interactions(5)
+    agentConfig.with_max_interactions(10)
     react = ReActExecutor(agentConfig, main_agent)
     react.execute("What is the double of Linus Torvalds age?")

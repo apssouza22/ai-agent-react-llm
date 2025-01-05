@@ -16,7 +16,7 @@ class ReActExecutor:
         self.brain = Brain(config)
         self.cache = CacheHandler()
 
-    def __plan(self, current_agent: Agent) -> None:
+    def __thought(self, current_agent: Agent) -> None:
         tools = self.__get_tools(current_agent)
 
         prompt = f"""Answer the following request as best you can: {self.request}.
@@ -35,7 +35,7 @@ CONTEXT HISTORY:
 {self.brain.recall()}
 """
         response = self.brain.think(prompt=prompt, agent=current_agent)
-        print(f"============= Plan =============")
+        print(f"============= Thought =============")
         print(f"Thought: {response} \n")
         self.brain.remember("Assistant: " + response)
 
@@ -73,7 +73,7 @@ RESPONSE FORMAT:
         tool = [tool for tool in current_agent.functions if tool.name == response.tool_name]
         return tool[0] if tool else None
 
-    def __action(self, tool: Tool, current_agent: Agent) -> None:
+    def __execute_action(self, tool: Tool, current_agent: Agent) -> None:
         if tool is None:
             return
 
@@ -136,25 +136,35 @@ CONTEXT HISTORY:
 
         return resp
 
-    def execute(self, input: str) -> str:
-        self.request = input
-        print(f"Request: {input}")
+
+    def __action(self, agent) -> tuple[Agent, bool]:
+        tool = self.__choose_action(agent)
+        if tool:
+            if isinstance(tool.func, Agent):
+                agent = tool.func
+                print(f"Agent: {agent.name}")
+                return agent, True
+
+            self.__execute_action(tool, agent)
+        else:
+            print("Tool not found")
+            agent = self.base_agent
+            return agent, True
+
+        return agent, False
+
+
+    def execute(self, query_input: str) -> str:
+        print(f"Request: {query_input}")
+        self.request = query_input
         total_interactions = 0
         agent = self.base_agent
         while True:
             total_interactions += 1
-            self.__plan(agent)
-            tool = self.__choose_action(agent)
-            if tool:
-                if isinstance(tool.func, Agent):
-                    agent = tool.func
-                    print(f"Agent: {agent.name}")
-                    continue
-
-                self.__action(tool, agent)
-            else:
-                print("Tool not found")
-                agent = self.base_agent
+            self.__thought(agent)
+            agent, skip = self.__action(agent)
+            if skip:
+                continue
 
             observation = self.__observation(agent)
             if observation.stop:
@@ -165,3 +175,5 @@ CONTEXT HISTORY:
             if self.config.max_interactions <= total_interactions:
                 print("Max interactions reached. Exiting.")
                 return ""
+
+

@@ -29,7 +29,7 @@ class Brain:
             self._get_system_instructions(),
             {
                 "role": "system",
-                "content": agent.get_instructions({}),
+                "content": agent.instructions,
             },
             {
                 "role": "user",

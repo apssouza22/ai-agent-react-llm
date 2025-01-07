@@ -3,6 +3,8 @@ import json
 from collections import defaultdict
 from typing import List
 
+from openai.types.chat import ChatCompletionMessage
+
 from .result_handler import ResultHandler
 from .types import (
     Agent,
@@ -13,7 +15,7 @@ from .util import debug_print
 __CTX_VARS_NAME__ = "context_variables"
 
 
-class AgentRunner:
+class AutoRunner:
 
     def __init__(self, client=None, debug=False):
         self.debug = debug
@@ -29,7 +31,7 @@ class AgentRunner:
         context_variables = defaultdict(str, context_variables)
         instructions = agent.get_instructions(context_variables)
         messages = [{"role": "system", "content": instructions}] + history
-        debug_print(self.debug, "Getting chat completion for...:", messages)
+        debug_print(self.debug, "Getting chat completion for...:", str(messages))
 
         tools = agent.tools_in_json()
         self.__hide_context_vars(tools)
@@ -48,7 +50,7 @@ class AgentRunner:
 
     @staticmethod
     def __hide_context_vars(tools):
-        """hide context_variables from model """
+        """hide context_variables from model because we don't want the model to see them"""
         for tool in tools:
             params = tool["function"]["parameters"]
             params["properties"].pop(__CTX_VARS_NAME__, None)
@@ -76,8 +78,8 @@ class AgentRunner:
                 context_variables=context_variables
             )
             completion = self.client.chat.completions.create(**create_params)
-            message = completion.choices[0].message
-            debug_print(self.debug, "Received completion:", message)
+            message:ChatCompletionMessage = completion.choices[0].message
+            debug_print(self.debug, "Received completion:", str(message))
             message.sender = active_agent.name
             history_msg = json.loads(message.model_dump_json())
             history.append(history_msg)
@@ -94,8 +96,8 @@ class AgentRunner:
 
             history.extend(response.messages)
             context_variables.update(response.context_variables)
-            if response.base_agent:
-                active_agent = response.base_agent
+            if response.agent:
+                active_agent = response.agent
 
         return Response(
             messages=history[init_len:],

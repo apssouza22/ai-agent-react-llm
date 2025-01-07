@@ -1,6 +1,6 @@
 from configs.agents import *
 from openai import OpenAI
-from openai_runner import AgentRunner
+from openai_runner import AutoRunner
 from openai_runner.util import pretty_print_messages
 
 context_variables = {
@@ -19,19 +19,18 @@ The flight # is 1919. The flight departure date is 3pm ET, 5/21/2024.""",
 }
 
 
-
-def run_demo_loop( starting_agent, context_variables=None) -> None:
-    client = AgentRunner(client=OpenAI(), debug=True)
+if __name__ == "__main__":
+    runner = AutoRunner(client=OpenAI(), debug=True)
     print("Starting Agent CLI")
 
     messages = []
-    agent = starting_agent
+    agent = triage_agent
 
     while True:
         user_input = input("\033[90mUser\033[0m: ")
         messages.append({"role": "user", "content": user_input})
 
-        response = client.run(
+        response = runner.run(
             agent=agent,
             messages=messages,
             context_variables=context_variables or {},
@@ -39,8 +38,4 @@ def run_demo_loop( starting_agent, context_variables=None) -> None:
 
         pretty_print_messages(response.messages)
         messages.extend(response.messages)
-        agent = response.base_agent
-
-
-if __name__ == "__main__":
-    run_demo_loop(triage_agent, context_variables=context_variables)
+        agent = response.agent

@@ -55,7 +55,7 @@ class ResultHandler:
 
         return partial_response
 
-    def __handle_call(self, tool_call, function_map, context_variables, partial_response):
+    def __handle_call(self, tool_call, function_map, context_variables, partial_response:Response):
         name = tool_call.function.name
         # handle missing tool case, skip to next tool
         if name not in function_map:
@@ -79,7 +79,7 @@ class ResultHandler:
         })
         partial_response.context_variables.update(result.context_variables)
         if result.agent:
-            partial_response.base_agent = result.agent
+            partial_response.agent = result.agent
 
     def __execute_tool(self, context_variables, function_map, name, tool_call):
         args = json.loads(tool_call.function.arguments)

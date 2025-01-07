@@ -100,7 +100,9 @@ RESPONSE FORMAT:
             self.brain.remember("Assistant: " + response)
             try:
                 # replace "json" string from response
-                response = json.loads(response.replace("json", ""))
+                clean_resp = response.replace("```json", "")
+                clean_resp = clean_resp.replace("```", "")
+                response = json.loads(clean_resp)
             except Exception as e:
                 print(f"Error in parsing response: {e}")
                 print(f"Invalid response: {response}")
@@ -142,12 +144,12 @@ CONTEXT HISTORY:
         if tool:
             if isinstance(tool.func, Agent):
                 agent = tool.func
-                print(f"Agent: {agent.name}")
+                print(f"Switching to the agent: {agent.name}")
                 return agent, True
 
             self.__execute_action(tool, agent)
         else:
-            print("Tool not found")
+            print(f"Tool not found. Switching to the agent. {self.base_agent.name}")
             agent = self.base_agent
             return agent, True
 
@@ -161,6 +163,11 @@ CONTEXT HISTORY:
         agent = self.base_agent
         while True:
             total_interactions += 1
+            if self.config.max_interactions <= total_interactions:
+                print("Max interactions reached. Exiting.")
+                return ""
+
+            print("Current Agent: ", agent.name)
             self.__thought(agent)
             agent, skip = self.__action(agent)
             if skip:
@@ -172,8 +179,5 @@ CONTEXT HISTORY:
                 print(f"Final Answer: {observation.final_answer}")
                 return observation.final_answer
 
-            if self.config.max_interactions <= total_interactions:
-                print("Max interactions reached. Exiting.")
-                return ""
 
 

@@ -7,7 +7,7 @@ from common import Agent
 AgentFunction = Callable[[], Union[str, "Agent", dict]]
 
 
-class Response(BaseModel):
+class TaskResponse(BaseModel):
     """
 Encapsulates the possible response from a task.
 
@@ -21,7 +21,7 @@ Attributes:
     context_variables: dict = {}
 
 
-class Result(BaseModel):
+class FuncResult(BaseModel):
     """
     Encapsulates the possible return values for an agent function.
 

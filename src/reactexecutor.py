@@ -36,10 +36,9 @@ class ReActExecutor:
 
     @staticmethod
     def __get_tools(agent: Agent) -> str:
-        tools =  [tool for tool in agent.functions if isinstance(tool, Tool)]
-        str_tools = [tool.name +" - "+ tool.desc for tool in tools]
+        tools = [tool for tool in agent.functions if isinstance(tool, Tool)]
+        str_tools = [tool.name + " - " + tool.desc for tool in tools]
         return "\n".join(str_tools)
-
 
     def __thought(self, current_agent: Agent) -> None:
         tools = self.__get_tools(current_agent)
@@ -79,34 +78,79 @@ CONTEXT HISTORY:
         return agent, False
 
     def __observation(self, current_agent: Agent) -> ReactEnd:
-        return ReactEnd(stop=True, final_answer="This is the final answer", confidence=0.5)
+        prompt = f"""Is the context information  enough to finally answer to this request: {self.request}?
+       
+Assign a quality confidence score between 0.0 and 1.0 to guide your approach:
+   - 0.8+: Continue current approach
+   - 0.5-0.7: Consider minor adjustments
+   - Below 0.5: Seriously consider backtracking and trying a different approach
+   
+CONTEXT HISTORY:
+---
+{self.brain.recall()}
+"""
+        response: ReactEnd = self.brain.think(prompt=prompt, agent=current_agent, output_format=ReactEnd)
+        self.brain.remember("Assistant: " + response.final_answer)
+        self.brain.remember("Assistant: " + f"Confidence score: {response.confidence}")
+
+        print("\n ============== Observation ============ \n")
+        print(f"Observation: {response.final_answer} \n")
+        print(f"Approach Confidence score: {response.confidence} \n")
+
+        return response
 
     def __choose_action(self, agent: Agent) -> Tool:
-        # TODO:  Implement the logic to choose the action
-        # Given the current agent and the available tools, ask chatGPT to choose the best tool
+        tools = self.__get_tools(agent)
+        prompt = f"""To Answer the following request as best you can: {self.request}.
+Choose the tool to use if need be. The tool should be among:
+{tools}
 
-        response: ToolChoice = ToolChoice(tool_name="People_search", reason_of_choice="reason_of_choice")
+CONTEXT HISTORY:
+---
+{self.brain.recall()}
+"""
+        response: ToolChoice = self.brain.think(prompt, agent=agent, output_format=ToolChoice)
+        message = f""" Assistant: I should use this tool: {response.tool_name}. Reason: {response.reason_of_choice}"""
+        self.brain.remember(message)
+
         tool = [tool for tool in agent.functions if tool.name == response.tool_name]
         return tool[0] if tool else None
 
-    def __execute_action(self, tool: Tool, agent:Agent):
+    def __execute_action(self, tool: Tool, agent: Agent):
         if tool is None:
             return
+
+        print(f"\n ================== Executing: {tool.name} ================\n")
+
+        prompt = f"""To Answer the following request as best you can: {self.request}.
+Determine the inputs to send to the tool: {tool.name}
+Given that the function signature of the tool function is: {inspect.signature(tool.func)}.
+
+CONTEXT HISTORY:
+---
+{self.brain.recall()}
+"""
         parameters = inspect.signature(tool.func).parameters
+        response = {}
+        if len(parameters) > 0:
+            prompt += f"""RESPONSE FORMAT:
+            {{
+                {', '.join([f'"{param}": <function parameter>' for param in parameters])}
+            }}"""
+            response = self.brain.think(prompt=prompt, agent=agent)
+            self.brain.remember("Assistant: " + response)
 
-        #TODO: Ask chatGPT to set the parameters values
-        response = f"""
-        {{
-            {', '.join([f'"{param}": <function parameter value>' for param in parameters])}
-        }}
-        """
-        try:
-            resp = json.loads(response)
-        except json.JSONDecodeError:
-            print("Error in setting the parameters")
-            print(f"Invalid response: {response}")
-            return
+            try:
+                response = json.loads(response)
+            except Exception as e:
+                print(f"Error in parsing response: {e}")
+                print(f"Invalid response: {response}")
+                self.brain.remember("Assistant: Error in parsing json response")
+                return
 
-        action_result = tool.func(**resp)
-        print(f"Action Result: {action_result}")
+        action_result = tool.func(**response)
+        msg = f"Tool Result: {action_result}"
+        print(f"Tool Params: {response}")
+        print(msg)
+        self.brain.remember(f"Assistant: {msg}")
 

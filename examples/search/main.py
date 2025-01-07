@@ -22,7 +22,7 @@ if __name__ == "__main__":
     agent_config = AgentConfig()
     agent_config.with_model_client(open_ai)
     agent_config.with_token_limit(5000)
-    agent_config.with_max_interactions(5)
+    agent_config.with_max_interactions(10)
     react_exec = ReActExecutor(agent_config, main_agent)
     react_exec.execute(query)
 

@@ -3,8 +3,8 @@ import os
 from openai import OpenAI
 
 from common import Agent, AgentConfig
-from reactexecutor import ReActExecutor
-from tools import people_search_tool, calculator_tool, today_tool
+from version1.reactexecutor import ReActExecutor
+from version1.tools import people_search_tool, calculator_tool, today_tool
 
 open_ai = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 

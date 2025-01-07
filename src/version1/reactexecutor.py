@@ -1,7 +1,7 @@
 import inspect
 import json
 
-from brain import Brain
+from version1.brain import Brain
 from common import AgentConfig, Agent, ReactEnd, Tool, ToolChoice
 
 

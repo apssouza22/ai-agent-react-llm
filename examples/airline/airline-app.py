@@ -1,6 +1,7 @@
 from openai import OpenAI
 
 from common import Agent
+from version2.runner import AppRunner
 from version2.types import TaskResponse
 
 main_agent = Agent(
@@ -16,12 +17,7 @@ context_variables = {
 }
 
 
-class AppRunner:
-    def __init__(self, client: OpenAI):
-        self.client = client
 
-    def run(self, query: str, agent:Agent, variables:dict, messages:list) -> TaskResponse:
-        return TaskResponse()
 
 
 if __name__ == "__main__":
@@ -31,8 +27,9 @@ if __name__ == "__main__":
     agent = main_agent
     while True:
         # query = input("Enter your query: ")
-        query = "test"
-        response = runner.run(query, main_agent, context_variables, messages)
+        query = "What day is today"
+        messages.append({"role": "user", "content": query})
+        response = runner.run(main_agent, messages, context_variables)
         messages.extend(response.messages)
         agent = response.agent
         break

@@ -1,7 +1,9 @@
-from typing import Union, Callable, List
+from typing import Union, Callable, List, Any
 
 from openai import OpenAI
 from pydantic import BaseModel, Field
+
+from version2.utils import function_to_json
 
 
 class ToolChoice(BaseModel):
@@ -28,8 +30,16 @@ class Agent(BaseModel):
     model: str = "gpt-4o"
     instructions: Union[str, Callable[[], str]] = "You are a helpful agent."
     functions: List = []
+    parallel_tool_calls: bool = True
+    tool_choice: str = None
 
+    def tools_in_json(self):
+        return [function_to_json(f) for f in self.functions]
 
+    def get_instructions(self, context_variables: dict = {}) -> str:
+        if callable(self.instructions):
+            return self.instructions(context_variables)
+        return self.instructions
 
 class AgentConfig:
     def __init__(self):

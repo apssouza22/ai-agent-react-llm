@@ -7,6 +7,7 @@ from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 
 from common import Agent
+from version2.result_handler import ResultHandler
 from version2.types import TaskResponse
 from version2.utils import debug_print
 
@@ -25,15 +26,17 @@ class AppRunner:
             llm_params = self.__create_inference_request(agent, history, variables)
             response = self.client.chat.completions.create(**llm_params)
             message: ChatCompletionMessage = response.choices[0].message
-            debug_print(True, "Response from OpenAI:", str(response))
+            debug_print( "Response from OpenAI:", str(response))
             message.sender = active_agent.name
             history_msg = json.loads(message.model_dump_json())
             history.append(history_msg)
             loop_count += 1
             if not message.tool_calls:
-                debug_print(True, "No tool calls found in the response")
+                debug_print( "No tool calls found in the response")
                 break
+            debug_print(message.tool_calls)
 
+            break
             # messages.extend(response.messages)
             # agent = response.agent
 
@@ -49,16 +52,15 @@ class AppRunner:
         instructions = agent.get_instructions(context_variables)
         messages = [{"role": "system", "content": instructions}] + history
         tools = agent.tools_in_json()
-        debug_print(True, "Getting chat completion for...:", str(messages))
+        debug_print( "Getting chat completion for...:", str(messages))
 
         params = {
             "model": agent.model,
             "messages": messages,
-
             "tool_choice": agent.tool_choice
         }
         if tools:
             params["parallel_tool_calls"] = agent.parallel_tool_calls
-            params["parallel_tool_calls"] = tools
+            params["tools"] = tools
 
         return params

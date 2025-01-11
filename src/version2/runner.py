@@ -1,13 +1,13 @@
 import copy
 import json
 from collections import defaultdict
-from lib2to3.fixes.fix_input import context
+
 
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 
 from common import Agent
-from version2.result_handler import ResultHandler
+from version2.result_handler import ToolCallHandler
 from version2.types import TaskResponse
 from version2.utils import debug_print
 
@@ -15,6 +15,7 @@ from version2.utils import debug_print
 class AppRunner:
     def __init__(self, client: OpenAI):
         self.client = client
+        self.tool_handler = ToolCallHandler()
 
     def run(self, agent: Agent, messages: list, variables: dict, max_interactions=10) -> TaskResponse:
         loop_count = 0
@@ -35,7 +36,11 @@ class AppRunner:
                 debug_print( "No tool calls found in the response")
                 break
             debug_print(message.tool_calls)
-
+            response =self.tool_handler.handle_tool_calls(
+                message.tool_calls,
+                active_agent.functions,
+            )
+            debug_print( "Response from tool handler:", str(response))
             break
             # messages.extend(response.messages)
             # agent = response.agent

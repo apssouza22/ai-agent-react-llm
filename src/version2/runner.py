@@ -24,7 +24,8 @@ class AppRunner:
         history = copy.deepcopy(messages)
         init_len = len(messages)
         while loop_count < max_interactions:
-            llm_params = self.__create_inference_request(agent, history, variables)
+            print(f"Active agent: {active_agent.name}")
+            llm_params = self.__create_inference_request(active_agent, history, variables)
             response = self.client.chat.completions.create(**llm_params)
             message: ChatCompletionMessage = response.choices[0].message
             debug_print( "Response from OpenAI:", str(response))
@@ -41,9 +42,10 @@ class AppRunner:
                 active_agent.functions,
             )
             debug_print( "Response from tool handler:", str(response))
-            break
-            # messages.extend(response.messages)
-            # agent = response.agent
+            history.extend(response.messages)
+            if response.agent:
+                print(f"Switching to agent: {response.agent.name}")
+                active_agent = response.agent
 
         return TaskResponse(
             messages=history[init_len:],

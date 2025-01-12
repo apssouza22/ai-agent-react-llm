@@ -1,4 +1,4 @@
-def escalate_to_agent(reason=None):
+def escalate_to_human(reason=None):
     return f"Escalating to agent: {reason}" if reason else "Escalating to agent"
 
 

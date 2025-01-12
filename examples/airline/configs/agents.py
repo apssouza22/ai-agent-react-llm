@@ -59,7 +59,7 @@ flight_cancel = Agent(
     name="Flight cancel traversal",
     instructions=STARTER_PROMPT + FLIGHT_CANCELLATION_POLICY,
     functions=[
-        escalate_to_agent,
+        escalate_to_human,
         initiate_refund,
         initiate_flight_credits,
         transfer_to_triage,
@@ -71,7 +71,7 @@ flight_change = Agent(
     name="Flight change traversal",
     instructions=STARTER_PROMPT + FLIGHT_CHANGE_POLICY,
     functions=[
-        escalate_to_agent,
+        escalate_to_human,
         change_flight,
         valid_to_change_flight,
         transfer_to_triage,
@@ -83,7 +83,7 @@ lost_baggage = Agent(
     name="Lost baggage traversal",
     instructions=STARTER_PROMPT + LOST_BAGGAGE_POLICY,
     functions=[
-        escalate_to_agent,
+        escalate_to_human,
         initiate_baggage_search,
         transfer_to_triage,
         case_resolved,

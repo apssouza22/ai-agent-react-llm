@@ -4,7 +4,7 @@ LOST_BAGGAGE_POLICY = """
 2. If the baggage is found:
 2a) Arrange for the baggage to be delivered to the customer's address.
 3. If the baggage is not found:
-3a) Call the 'escalate_to_agent' function.
+3a) Call the 'escalate_to_human' function.
 4. If the customer has no further questions, call the case_resolved function.
 
 **Case Resolved: When the case has been resolved, ALWAYS call the "case_resolved" function**
@@ -14,7 +14,7 @@ LOST_BAGGAGE_POLICY = """
 FLIGHT_CANCELLATION_POLICY = f"""
 1. Confirm which flight the customer is asking to cancel.
 1a) If the customer is asking about the same flight, proceed to next step.
-1b) If the customer is not, call 'escalate_to_agent' function.
+1b) If the customer is not, call 'escalate_to_human' function.
 2. Confirm if the customer wants a refund or flight credits.
 3. If the customer wants a refund follow step 3a). If the customer wants flight credits move to step 4.
 3a) Call the initiate_refund function.

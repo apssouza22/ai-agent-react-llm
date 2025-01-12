@@ -2,6 +2,7 @@ import inspect
 import json
 
 from common.agent_base import Agent
+from common.utils import debug_print
 from react.brain import Brain, ReactEnd
 from react.cache import CacheHandler
 from react.config import AgentConfig
@@ -36,7 +37,8 @@ CONTEXT HISTORY:
 """
         response = self.brain.think(prompt=prompt, agent=current_agent)
         print(f"============= Thought =============")
-        print(f"Thought: {response} \n")
+        debug_print(f"Thought: {response} \n")
+
         self.brain.remember("Assistant: " + response)
 
     @staticmethod
@@ -67,7 +69,7 @@ RESPONSE FORMAT:
 
         message = f"""Assistant: I should use this tool: {response.tool_name}. {response.reason_of_choice}"""
 
-        print(message)
+        debug_print(message)
         self.brain.remember(message)
 
         tool = [tool for tool in current_agent.functions if tool.name == response.tool_name]
@@ -77,7 +79,7 @@ RESPONSE FORMAT:
         if tool is None:
             return
 
-        print(f"""============= Executing {tool.name} =============""")
+        print(f"""============= Action: Executing {tool.name} =============""")
         parameters = inspect.signature(tool.func).parameters
         response = {}
         prompt = f"""To Answer the following request as best you can: {self.request}.
@@ -111,8 +113,8 @@ RESPONSE FORMAT:
 
         action_result = tool.func(**response)
         message = f"Action Result: {action_result}"
-        print("Action params: " + str(response))
-        print(message)
+        debug_print(f"Action params: {response}")
+        debug_print(message)
         self.brain.remember(message)
 
     def __observation(self, current_agent: Agent) -> ReactEnd:
@@ -131,10 +133,10 @@ CONTEXT HISTORY:
         self.brain.remember("User: Is the context information enough to finally answer to this request?")
         self.brain.remember("Assistant: " + resp.final_answer)
         self.brain.remember("Assistant: Approach confidence score - " + str(resp.confidence))
-
+        observation = resp.final_answer if resp.final_answer else 'Not enough information to answer'
         print("============== Observation =============")
-        print(f"Observation: {resp.final_answer}")
-        print(f"Approach confident score: {resp.confidence}")
+        debug_print(f"Observation: {observation}")
+        debug_print(f"Approach confident score: {resp.confidence}")
 
         return resp
 
@@ -149,7 +151,7 @@ CONTEXT HISTORY:
 
             self.__execute_action(tool, agent)
         else:
-            print(f"Tool not found. Switching to the agent. {self.base_agent.name}")
+            debug_print(f"Tool not found. Switching to the agent. {self.base_agent.name}")
             agent = self.base_agent
             return agent, True
 
@@ -157,7 +159,7 @@ CONTEXT HISTORY:
 
 
     def execute(self, query_input: str) -> str:
-        print(f"Request: {query_input}")
+        debug_print(f"Request: {query_input}")
         self.request = query_input
         total_interactions = 0
         agent = self.base_agent
@@ -167,7 +169,7 @@ CONTEXT HISTORY:
                 print("Max interactions reached. Exiting.")
                 return ""
 
-            print("Current Agent: ", agent.name)
+            debug_print(f"Current Agent: {agent.name}")
             self.__thought(agent)
             agent, skip = self.__action(agent)
             if skip:
@@ -175,7 +177,7 @@ CONTEXT HISTORY:
 
             observation = self.__observation(agent)
             if observation.stop:
-                print("Thought: I now know the final answer. \n")
+                debug_print("Thought: I now know the final answer. \n")
                 print(f"Final Answer: {observation.final_answer}")
                 return observation.final_answer
 

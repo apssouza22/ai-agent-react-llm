@@ -1,4 +1,4 @@
-# Vanilla ReAct LLM Agent
+# Vanilla ReAct AI Agent
 
 This repository contains the implementation of the [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629), which is a model that combines reasoning and acting capabilities in language models.
 
